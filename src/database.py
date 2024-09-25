@@ -1,8 +1,10 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import DeclarativeBase
 
 
 DATABASE_URL = "sqlite+aiosqlite:///warehouse.db"
+Base = declarative_base()
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 
@@ -13,11 +15,13 @@ class Model(DeclarativeBase):
     pass
 
 
-async def create_tables():
+async def create_db_and_tables():
     async with engine.begin() as conn:
-        await conn.run_sync(Model.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 
-async def delete_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Model.metadata.drop_all)
+# Dependency
+async def get_session() -> AsyncSession:
+    async with AsyncSessionLocal() as session:
+        yield session
+
