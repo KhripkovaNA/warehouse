@@ -12,7 +12,7 @@ async def lifespan(app: FastAPI):
     print("Выключение")
 
 app = FastAPI(
-    title="WarehouseApp",
+    title="Склад",
     lifespan=lifespan
 )
 

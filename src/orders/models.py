@@ -31,5 +31,5 @@ class OrderItem(Model):
     quantity: Mapped[int] = mapped_column(nullable=False)
 
     # Optional: relationship definitions to access related Order and Product objects
-    order: Mapped['Order'] = relationship('Order', back_populates='items')
+    order: Mapped['Order'] = relationship('Order')
     product: Mapped['Product'] = relationship('Product')

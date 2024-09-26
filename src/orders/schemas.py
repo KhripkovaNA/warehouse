@@ -10,11 +10,11 @@ class OrderStatus(str, Enum):
     DELIVERED = "доставлен"
 
 
-class OrderCreate(BaseModel):
+class SOrderAdd(BaseModel):
     created_at: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
     status: OrderStatus = OrderStatus.IN_PROCESS
 
 
-class OrderItemCreate(BaseModel):
+class SOrderItemAdd(BaseModel):
     product_id: int
     quantity: int = Field(..., gt=0)
