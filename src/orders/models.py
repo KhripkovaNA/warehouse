@@ -1,8 +1,9 @@
-from sqlalchemy import DateTime, Enum, func, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
-from src.database import Model
+from sqlalchemy import Enum, func, ForeignKey, TIMESTAMP
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 import enum
+from src.database import Model
+from src.products.models import Product
 
 
 class OrderStatus(enum.Enum):
@@ -15,7 +16,9 @@ class Order(Model):
     __tablename__ = 'orders'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    order_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.utcnow()
+    )
     status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), nullable=False, default=OrderStatus.IN_PROCESS)
 
 
@@ -27,8 +30,6 @@ class OrderItem(Model):
     product_id: Mapped[int] = mapped_column(ForeignKey('products.id'), nullable=False)
     quantity: Mapped[int] = mapped_column(nullable=False)
 
-    # # Optional: relationship definitions to access related Order and Product objects
-    # order: Mapped['Order'] = relationship('Order', back_populates='items')
-    # product: Mapped['Product'] = relationship('Product')
-
-
+    # Optional: relationship definitions to access related Order and Product objects
+    order: Mapped['Order'] = relationship('Order', back_populates='items')
+    product: Mapped['Product'] = relationship('Product')
