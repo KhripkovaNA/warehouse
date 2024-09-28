@@ -2,6 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from src.database import Model
 
 
+# Product (Товар): id, название, описание, цена, количество на складе.
 class Product(Model):
     __tablename__ = "products"
 

@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select, delete
 from src.database import AsyncSessionLocal
 from src.products.models import Product
@@ -11,8 +12,7 @@ class ProductRepository:
             query = select(Product)
             result = await session.execute(query)
             product_models = result.scalars().all()
-            product_schemas = [SProduct.model_validate(product_model) for product_model in product_models]
-            return product_schemas
+            return product_models
 
     @classmethod
     async def find_by_id(cls, product_id: int) -> SProduct | None:
@@ -20,9 +20,12 @@ class ProductRepository:
             query = select(Product).where(Product.id == product_id)
             result = await session.execute(query)
             product_model = result.scalar_one_or_none()
-            if product_model:
-                return SProduct.model_validate(product_model)
-            return None
+            if not product_model:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Product with id {product_id} not found"
+                )
+            return product_model
 
     @classmethod
     async def add_product(cls, product_data: SProductAdd) -> int:
@@ -41,14 +44,14 @@ class ProductRepository:
             result = await session.execute(query)
             product_model = result.scalar_one_or_none()
 
-            if product_model:
-                for key, value in product_data.model_dump().items():
-                    setattr(product_model, key, value)
+            if not product_model:
+                raise HTTPException(status_code=404, detail=f"Product with id {product_id} not found")
 
-                await session.commit()
-                return SProduct.model_validate(product_model)
+            for key, value in product_data.model_dump().items():
+                setattr(product_model, key, value)
 
-            return None
+            await session.commit()
+            return product_model
 
     @classmethod
     async def delete_product(cls, product_id: int) -> bool:
