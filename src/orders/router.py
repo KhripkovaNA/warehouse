@@ -1,7 +1,8 @@
 from typing import List
-
-from fastapi import APIRouter, HTTPException
-from src.orders.dependencies import OrderRepository
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.database import get_async_session
+from src.orders.repository import OrderRepository
 from src.orders.schemas import SOrderAdd, SOrderStatus, SOrder
 
 router = APIRouter(
@@ -12,9 +13,9 @@ router = APIRouter(
 
 # Получение списка заказов (GET /orders)
 @router.get("", response_model=List[SOrder])
-async def get_orders():
+async def get_orders(session: AsyncSession = Depends(get_async_session)):
     try:
-        orders = await OrderRepository.get_all()
+        orders = await OrderRepository.get_all(session)
         return orders
 
     except Exception as e:
@@ -23,9 +24,9 @@ async def get_orders():
 
 # Получение информации о заказе по id (GET /orders/{id})
 @router.get("/{order_id}", response_model=SOrder)
-async def get_order(order_id: int):
+async def get_order(order_id: int, session: AsyncSession = Depends(get_async_session)):
     try:
-        order = await OrderRepository.find_by_id(order_id)
+        order = await OrderRepository.find_by_id(order_id, session)
         return order
 
     except HTTPException as e:
@@ -37,9 +38,9 @@ async def get_order(order_id: int):
 
 # Создание заказа (POST /orders)
 @router.post("")
-async def add_order(order_data: SOrderAdd):
+async def add_order(order_data: SOrderAdd, session: AsyncSession = Depends(get_async_session)):
     try:
-        order_id = await OrderRepository.add_order(order_data)
+        order_id = await OrderRepository.add_order(order_data, session)
         return f"Order added successfully, order_id: {order_id}"
 
     except HTTPException as e:
@@ -51,9 +52,11 @@ async def add_order(order_data: SOrderAdd):
 
 # Обновление статуса заказа (PATCH /orders/{id}/status)
 @router.patch("/{order_id}/status")
-async def update_order_status(order_id: int, new_status: SOrderStatus):
+async def update_order_status(
+        order_id: int, new_status: SOrderStatus, session: AsyncSession = Depends(get_async_session)
+):
     try:
-        await OrderRepository.update_status(order_id, new_status)
+        await OrderRepository.update_status(order_id, new_status, session)
         return "Order status updated successfully"
 
     except HTTPException as e:
