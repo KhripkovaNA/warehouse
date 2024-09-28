@@ -4,7 +4,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, timezone
 import enum
 from src.database import Model
-from src.products.models import Product
 
 
 class OrderStatus(enum.Enum):
@@ -13,6 +12,7 @@ class OrderStatus(enum.Enum):
     DELIVERED = "доставлен"
 
 
+# Order (Заказ): id, дата создания, статус
 class Order(Model):
     __tablename__ = 'orders'
 
@@ -21,9 +21,15 @@ class Order(Model):
         TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
     status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), nullable=False, default=OrderStatus.IN_PROCESS)
-    order_items: Mapped[List['OrderItem']] = relationship(back_populates="order")
+
+    order_items: Mapped[List['OrderItem']] = relationship(
+        "OrderItem",
+        back_populates="order",
+        cascade="all, delete-orphan"
+    )
 
 
+# OrderItem (Предмет Заказа): id, заказ, продукт, количество
 class OrderItem(Model):
     __tablename__ = 'order_items'
 
@@ -32,5 +38,6 @@ class OrderItem(Model):
     product_id: Mapped[int] = mapped_column(ForeignKey('products.id'), nullable=False)
     quantity: Mapped[int] = mapped_column(nullable=False)
 
-    order: Mapped['Order'] = relationship('Order', back_populates='order_items')
-    product: Mapped['Product'] = relationship('Product')
+    order: Mapped['Order'] = relationship("Order", back_populates="order_items")
+
+    product: Mapped['Product'] = relationship("Product", back_populates="orders")

@@ -1,5 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy import select, delete
+from sqlalchemy.orm import selectinload
+
 from src.database import AsyncSessionLocal
 from src.products.models import Product
 from src.products.schemas import SProductAdd, SProduct
@@ -54,10 +56,17 @@ class ProductRepository:
             return product_model
 
     @classmethod
-    async def delete_product(cls, product_id: int) -> bool:
+    async def delete_product(cls, product_id: int):
         async with AsyncSessionLocal() as session:
-            query = delete(Product).where(Product.id == product_id)
+            query = select(Product).where(Product.id == product_id)
             result = await session.execute(query)
-            await session.commit()
+            product_model = result.scalar_one_or_none()
 
-            return result.rowcount > 0
+            if not product_model:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Product with id {product_id} not found"
+                )
+
+            await session.delete(product_model)
+            await session.commit()
