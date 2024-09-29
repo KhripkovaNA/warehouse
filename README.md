@@ -55,7 +55,7 @@
 ### 1. Клонирование репозитория
 
 ```
-git clone <url-репозитория>
+git clone https://github.com/KhripkovaNA/warehouse
 cd warehouse-api
 ```
 
