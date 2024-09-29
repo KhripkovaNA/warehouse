@@ -18,8 +18,8 @@ async def get_orders(session: AsyncSession = Depends(get_async_session)):
         orders = await OrderRepository.get_all(session)
         return orders
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve orders: {e}")
+    except Exception:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve orders")
 
 
 # Получение информации о заказе по id (GET /orders/{id})
@@ -41,7 +41,7 @@ async def get_order(order_id: int, session: AsyncSession = Depends(get_async_ses
 async def add_order(order_data: SOrderAdd, session: AsyncSession = Depends(get_async_session)):
     try:
         order_id = await OrderRepository.add_order(order_data, session)
-        return f"Order added successfully, order_id: {order_id}"
+        return {"detail": f"Order added successfully, id: {order_id}"}
 
     except HTTPException as e:
         raise e
@@ -57,10 +57,10 @@ async def update_order_status(
 ):
     try:
         await OrderRepository.update_status(order_id, new_status, session)
-        return "Order status updated successfully"
+        return {"detail": "Order status updated successfully"}
 
     except HTTPException as e:
         raise e
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update order status: {e}")
+    except Exception:
+        raise HTTPException(status_code=500, detail=f"Failed to update order status")

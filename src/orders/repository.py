@@ -1,7 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from src.database import AsyncSessionLocal
 from src.orders.models import Order, OrderStatus
 from src.orders.schemas import SOrderAdd, SOrder, SOrderStatus
 from src.orders.service import OrderService

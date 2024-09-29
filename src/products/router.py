@@ -42,10 +42,10 @@ async def get_product(product_id: int, session: AsyncSession = Depends(get_async
 async def add_product(product_data: SProductAdd, session: AsyncSession = Depends(get_async_session)):
     try:
         product_id = await ProductRepository.add_product(product_data, session)
-        return f"Product added successfully, product_id: {product_id}"
+        return {"detail": f"Product added successfully, id: {product_id}"}
 
     except Exception:
-        raise HTTPException(status_code=500, detail=f"Failed to add product")
+        raise HTTPException(status_code=500, detail="Failed to add product")
 
 
 # Обновление информации о товаре (PUT /products/{id})
@@ -55,7 +55,7 @@ async def update_product(
 ):
     try:
         await ProductRepository.update_product(product_id, product_data, session)
-        return "Product updated successfully"
+        return {"detail": "Product updated successfully"}
 
     except HTTPException as e:
         raise e
@@ -69,7 +69,7 @@ async def update_product(
 async def delete_product(product_id: int, session: AsyncSession = Depends(get_async_session)):
     try:
         await ProductRepository.delete_product(product_id, session)
-        return "Product deleted successfully"
+        return {"detail": "Product deleted successfully"}
 
     except HTTPException as e:
         raise e

@@ -35,9 +35,6 @@ async def prepare_database():
         await conn.run_sync(Model.metadata.drop_all)
 
 
-client = TestClient(app)
-
-
 @pytest_asyncio.fixture(scope="session")
 async def async_client() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_test_client:

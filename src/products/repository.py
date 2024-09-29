@@ -1,8 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import select, delete
-from sqlalchemy.orm import selectinload
-
-from src.database import AsyncSessionLocal
+from sqlalchemy import select
 from src.products.models import Product
 from src.products.schemas import SProductAdd, SProduct
 
