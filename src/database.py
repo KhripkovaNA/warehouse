@@ -1,9 +1,10 @@
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
+from src.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 
 
-DATABASE_URL = "sqlite+aiosqlite:///warehouse.db"
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 
 class Model(DeclarativeBase):
@@ -13,10 +14,6 @@ class Model(DeclarativeBase):
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 AsyncSessionLocal = async_sessionmaker(bind=engine, expire_on_commit=False)
-
-
-from src.products.models import Product
-from src.orders.models import Order, OrderItem
 
 
 async def create_tables():

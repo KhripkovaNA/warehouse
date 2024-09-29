@@ -5,16 +5,8 @@ from src.products.router import router as products_router
 from src.orders.router import router as orders_router
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # await delete_tables()
-    # await create_tables()
-    yield
-    print("Выключение")
-
 app = FastAPI(
-    title="Склад",
-    lifespan=lifespan
+    title="Склад"
 )
 
 

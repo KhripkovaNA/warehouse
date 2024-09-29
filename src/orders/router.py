@@ -19,7 +19,7 @@ async def get_orders(session: AsyncSession = Depends(get_async_session)):
         return orders
 
     except Exception:
-        raise HTTPException(status_code=500, detail=f"Failed to retrieve orders")
+        raise HTTPException(status_code=500, detail="Failed to retrieve orders")
 
 
 # Получение информации о заказе по id (GET /orders/{id})
@@ -63,4 +63,4 @@ async def update_order_status(
         raise e
 
     except Exception:
-        raise HTTPException(status_code=500, detail=f"Failed to update order status")
+        raise HTTPException(status_code=500, detail="Failed to update order status")

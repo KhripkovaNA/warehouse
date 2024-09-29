@@ -1,14 +1,17 @@
-from typing import AsyncGenerator
+import asyncio
+from typing import AsyncGenerator, Any
 import pytest
-import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from fastapi.testclient import TestClient
 from src.database import Model, get_async_session
+from src.products.models import Product
+from src.orders.models import Order, OrderItem
 from src.main import app
+from src.config import (DB_HOST_TEST, DB_NAME_TEST, DB_PASS_TEST, DB_PORT_TEST, DB_USER_TEST)
 
 
-DATABASE_URL_TEST = "sqlite+aiosqlite:///warehouse_test.db"
+DATABASE_URL_TEST = f"postgresql+asyncpg://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
 
 engine_test = create_async_engine(DATABASE_URL_TEST, echo=True)
 
@@ -22,10 +25,6 @@ async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
 app.dependency_overrides[get_async_session] = override_get_async_session
 
 
-from src.products.models import Product
-from src.orders.models import Order, OrderItem
-
-
 @pytest.fixture(autouse=True, scope='session')
 async def prepare_database():
     async with engine_test.begin() as conn:
@@ -35,7 +34,7 @@ async def prepare_database():
         await conn.run_sync(Model.metadata.drop_all)
 
 
-@pytest_asyncio.fixture(scope="session")
-async def async_client() -> AsyncGenerator[AsyncClient, None]:
+@pytest.fixture(scope="session")
+async def async_client() -> AsyncGenerator[AsyncClient, Any]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as async_test_client:
         yield async_test_client
