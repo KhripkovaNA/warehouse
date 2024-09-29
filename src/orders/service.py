@@ -1,13 +1,14 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from src.orders.models import Order, OrderItem
-from src.orders.schemas import SOrderAdd
+from src.orders.schemas import SOrderAdd, SOrder
 from src.products.models import Product
 from fastapi import HTTPException
 
 
 class OrderService:
     @staticmethod
-    async def check_and_create_order(order_data: SOrderAdd, session) -> int | None:
+    async def check_and_create_order(order_data: SOrderAdd, session) -> int:
         try:
             # Создание заказа
             order = Order()
@@ -49,3 +50,12 @@ class OrderService:
         except Exception as e:
             await session.rollback()
             raise e
+
+    @staticmethod
+    async def find_by_id(order_id: int, session) -> SOrder:
+        query = select(Order).where(Order.id == order_id).options(selectinload(Order.order_items))
+        result = await session.execute(query)
+        order_model = result.scalar_one_or_none()
+        if not order_model:
+            raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
+        return order_model

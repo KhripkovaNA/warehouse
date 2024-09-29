@@ -12,7 +12,7 @@ async def test_add_product(async_client: AsyncClient):
     })
 
     assert response.status_code == 200
-    assert response.json()["detail"] == "Product added successfully, id: 1"
+    assert response.json()["id"] == 1
 
 
 @pytest.mark.asyncio(loop_scope='session')
@@ -49,7 +49,7 @@ async def test_update_product(async_client: AsyncClient):
     })
 
     assert response.status_code == 200
-    assert response.json()["detail"] == "Product updated successfully"
+    assert response.json()["id"] == 1
 
     response = await async_client.get("/products/1")
 
@@ -58,23 +58,11 @@ async def test_update_product(async_client: AsyncClient):
 
 
 @pytest.mark.asyncio(loop_scope='session')
-async def test_delete_product(async_client: AsyncClient):
-    response = await async_client.delete("/products/1")
-
-    assert response.status_code == 200
-    assert response.json()["detail"] == "Product deleted successfully"
-
-    response = await async_client.get("/products/1")
-
-    assert response.status_code == 404
-
-
-@pytest.mark.asyncio(loop_scope='session')
 async def test_add_order_1(async_client: AsyncClient):
     await async_client.post("/products", json={
-        "name": "table",
+        "name": "wardrobe",
         "description": "wooden",
-        "price": 100.0,
+        "price": 150.0,
         "quantity": 10
     })
     await async_client.post("/products", json={
@@ -98,7 +86,7 @@ async def test_add_order_1(async_client: AsyncClient):
     })
 
     assert response.status_code == 200
-    assert response.json()["detail"] == "Order added successfully, id: 1"
+    assert response.json()["id"] == 1
 
     response = await async_client.get("/products/2")
 
@@ -175,3 +163,23 @@ async def test_update_order_status(async_client: AsyncClient):
 
     assert response.status_code == 200
     assert response.json()["status"] == "отправлен"
+
+
+@pytest.mark.asyncio(loop_scope='session')
+async def test_delete_product(async_client: AsyncClient):
+    response = await async_client.delete("/products/2")
+
+    assert response.status_code == 200
+    assert response.json()["detail"] == "Product with id=2 deleted successfully"
+
+    response = await async_client.get("/products/2")
+
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio(loop_scope='session')
+async def test_get_order_2(async_client: AsyncClient):
+    response = await async_client.get("/orders/1")
+
+    assert response.status_code == 200
+    assert len(response.json()["order_items"]) == 1

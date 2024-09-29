@@ -25,13 +25,13 @@ class ProductRepository:
         return product_model
 
     @classmethod
-    async def add_product(cls, product_data: SProductAdd, session) -> int:
+    async def add_product(cls, product_data: SProductAdd, session) -> SProduct:
         product_dict = product_data.model_dump()
         product = Product(**product_dict)
         session.add(product)
         await session.commit()
         await session.refresh(product)
-        return product.id
+        return product
 
     @classmethod
     async def update_product(cls, product_id: int, product_data: SProductAdd, session) -> SProduct | None:

@@ -16,3 +16,7 @@ class SProduct(SProductAdd):
     id: int
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class Detail(BaseModel):
+    detail: str

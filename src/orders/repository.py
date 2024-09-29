@@ -16,17 +16,14 @@ class OrderRepository:
 
     @classmethod
     async def find_by_id(cls, order_id: int, session) -> SOrder | None:
-        query = select(Order).where(Order.id == order_id).options(selectinload(Order.order_items))
-        result = await session.execute(query)
-        order_model = result.scalar_one_or_none()
-        if not order_model:
-            raise HTTPException(status_code=404, detail=f"Order with id {order_id} not found")
-        return order_model
+        order = await OrderService.find_by_id(order_id, session)
+        return order
 
     @classmethod
-    async def add_order(cls, order_data: SOrderAdd, session) -> int | None:
+    async def add_order(cls, order_data: SOrderAdd, session) -> SOrder | None:
         order_id = await OrderService.check_and_create_order(order_data, session)
-        return order_id
+        order = await OrderService.find_by_id(order_id, session)
+        return order
 
     @classmethod
     async def update_status(cls, order_id: int, new_status: SOrderStatus, session) -> SOrder | None:

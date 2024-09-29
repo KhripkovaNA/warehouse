@@ -8,10 +8,10 @@ class Product(Model):
     __tablename__ = "products"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[Optional[str]] = mapped_column(default=None)
-    price: Mapped[float]
-    quantity: Mapped[int]
+    price: Mapped[float] = mapped_column(nullable=False)
+    quantity: Mapped[int] = mapped_column(nullable=False)
 
     orders: Mapped[List['OrderItem']] = relationship(
         "OrderItem",
